@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>サーバー状況</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 サーバー状況</h1>
+            <p class="server-address">{{ server_address }}</p>
+        </header>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>サーバー情報を取得中...</p>
+        </div>
+
+        <div id="content" style="display: none;">
+            <!-- ステータスカード -->
+            <div class="status-card">
+                <div class="status-indicator">
+                    <span id="status-badge" class="badge">🔴 Offline</span>
+                </div>
+
+                <!-- ★ オンライン表示 + 右にサーバーアイコン -->
+                <div class="status-text" id="status-text"
+                     style="display:flex; align-items:center; gap:8px;">
+                    サーバーに接続しています...
+                    <img id="server-icon"
+                         src=""
+                         alt="Server Icon"
+                         style="width:32px; height:32px; display:none;">
+                </div>
+            </div>
+
+            <!-- サーバー情報 -->
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-label">📡 Ping</div>
+                    <div class="info-value" id="ping">-</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">📦 バージョン</div>
+                    <div class="info-value" id="version">-</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">👥 プレイヤー</div>
+                    <div class="info-value" id="players">-</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">⏰ 最終更新</div>
+                    <div class="info-value" id="last-update">-</div>
+                </div>
+            </div>
+
+            <!-- ❌ サーバーアイコン欄は削除 -->
+            <!-- ❌ MOTD（サーバー説明）も削除 -->
+
+            <!-- プレイヤーリスト -->
+            <div id="players-container" style="display: none;">
+                <div class="section-title">👥 オンラインプレイヤー</div>
+                <div class="players-grid" id="players-list"></div>
+            </div>
+        </div>
+
+        <footer>
+            <p>自動更新: 10秒ごと | データ提供: mcsrvstat.us</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></cript>
+</body>
+</html>
