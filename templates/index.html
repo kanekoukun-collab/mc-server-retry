@@ -25,14 +25,17 @@
                     <span id="status-badge" class="badge">🔴 Offline</span>
                 </div>
 
-                <!-- ★ オンライン表示 + 右にサーバーアイコン -->
-                <div class="status-text" id="status-text"
-                     style="display:flex; align-items:center; gap:8px;">
-                    サーバーに接続しています...
+                <!-- サーバーアイコン（大きく中央に） -->
+                <div class="server-icon-container">
                     <img id="server-icon"
                          src=""
                          alt="Server Icon"
-                         style="width:32px; height:32px; display:none;">
+                         style="display:none;">
+                </div>
+
+                <!-- ステータステキスト（中央） -->
+                <div class="status-text" id="status-text">
+                    サーバーに接続しています...
                 </div>
             </div>
 
@@ -55,9 +58,6 @@
                     <div class="info-value" id="last-update">-</div>
                 </div>
             </div>
-
-            <!-- ❌ サーバーアイコン欄は削除 -->
-            <!-- ❌ MOTD（サーバー説明）も削除 -->
 
             <!-- プレイヤーリスト -->
             <div id="players-container" style="display: none;">

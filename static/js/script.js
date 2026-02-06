@@ -16,14 +16,12 @@ async function updateServerStatus() {
             // ===== オンライン =====
             statusBadge.textContent = '🟢 Online';
             statusBadge.className = 'badge online';
+            statusText.textContent = 'サーバーはオンラインです';
 
-            // テキストを一度リセット（imgを残すため）
-            statusText.childNodes[0].textContent = 'サーバーはオンラインです';
-
-            // サーバーアイコン（右側）
+            // サーバーアイコン
             if (data.icon) {
                 serverIcon.src = data.icon;
-                serverIcon.style.display = 'inline-block';
+                serverIcon.style.display = 'block';
             } else {
                 serverIcon.style.display = 'none';
             }
@@ -52,7 +50,7 @@ async function updateServerStatus() {
             // ===== オフライン =====
             statusBadge.textContent = '🔴 Offline';
             statusBadge.className = 'badge offline';
-            statusText.childNodes[0].textContent = 'サーバーはオフラインです';
+            statusText.textContent = 'サーバーはオフラインです';
 
             serverIcon.style.display = 'none';
 

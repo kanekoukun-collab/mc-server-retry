@@ -75,7 +75,7 @@ header h1 {
 }
 
 .status-indicator {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .badge {
@@ -96,9 +96,27 @@ header h1 {
     color: white;
 }
 
+/* サーバーアイコンコンテナ */
+.server-icon-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    min-height: 150px;
+}
+
+.server-icon-container img {
+    width: 200px;
+    height: 200px;
+    image-rendering: pixelated;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
 .status-text {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     color: #666;
+    margin-top: 15px;
 }
 
 .info-grid {
@@ -140,34 +158,6 @@ header h1 {
     color: white;
     margin-bottom: 15px;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.server-icon-wrapper {
-    background: white;
-    border-radius: 15px;
-    padding: 30px;
-    text-align: center;
-    margin-bottom: 20px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    animation: fadeIn 0.7s ease-in;
-}
-
-.server-icon-wrapper img {
-    max-width: 128px;
-    height: auto;
-    image-rendering: pixelated;
-    border-radius: 10px;
-}
-
-.motd {
-    background: white;
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    font-family: 'Courier New', monospace;
-    white-space: pre-wrap;
-    animation: fadeIn 0.8s ease-in;
 }
 
 .players-grid {
@@ -232,5 +222,10 @@ footer {
     
     .players-grid {
         grid-template-columns: 1fr;
+    }
+
+    .server-icon-container img {
+        width: 150px;
+        height: 150px;
     }
 }
