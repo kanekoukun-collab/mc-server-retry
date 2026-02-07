@@ -154,7 +154,7 @@ modal.addEventListener('click', (e) => {
 });
 
 // 保存ボタン
-saveBtn.addEventListener('click', () => {
+saveBtn.addEventListener('click', async () => {
     const newAddress = inputField.value.trim();
     
     if (!newAddress) {
@@ -167,10 +167,10 @@ saveBtn.addEventListener('click', () => {
     serverAddressBtn.textContent = newAddress;
     closeModal();
     
-    // 設定を反映させるため、APIのベースパスを更新してステータスを再取得
-    updateServerStatus();
-    
     console.log('✅ サーバーアドレスを更新:', newAddress);
+    
+    // 即座に新しいサーバーの情報を取得・表示
+    await updateServerStatus();
 });
 
 // Enterキーで保存
