@@ -115,16 +115,6 @@ def api_status():
     
     logger.info(f"📡 APIリクエスト: {api_url}")
     
-    try:
-        response = requests.get(api_url, timeout=10)
-        response.raise_for_status()
-        data = response.json()
-        
-        logger.info(f"✓ APIレスポンス成功 | online={data.get('online')}")
-    except Exception as e:
-        logger.error(f"❌ APIエラー: {str(e)}")
-        data = None
-    
     response_data = {
         'online': False,
         'server': server_addr,
@@ -134,9 +124,30 @@ def api_status():
             'online': 0,
             'max': 0,
             'list': []
-        }
+        },
+        'error': None  # エラーメッセージ
     }
     
+    try:
+        response = requests.get(api_url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        logger.info(f"✓ APIレスポンス成功 | online={data.get('online')}")
+    except requests.exceptions.Timeout:
+        logger.error(f"❌ APIタイムアウト: {server_addr}")
+        response_data['error'] = f"サーバーが見つかりませんでした ({server_addr})"
+        return jsonify(response_data)
+    except requests.exceptions.ConnectionError:
+        logger.error(f"❌ 接続エラー: {server_addr}")
+        response_data['error'] = f"サーバーが見つかりませんでした ({server_addr})"
+        return jsonify(response_data)
+    except Exception as e:
+        logger.error(f"❌ APIエラー: {str(e)}")
+        response_data['error'] = f"サーバーが見つかりませんでした ({server_addr})"
+        return jsonify(response_data)
+    
+    # サーバー情報が取得できたかチェック
     if data and data.get('online'):
         response_data['online'] = True
         
@@ -185,6 +196,9 @@ def api_status():
         # アイコン
         if 'icon' in data:
             response_data['icon'] = data['icon']
+    else:
+        # サーバーがオフラインの場合
+        response_data['error'] = f"サーバーが見つかりませんでした ({server_addr})"
     
     logger.info(f"📤 APIステータスレスポンス: {response_data}")
     return jsonify(response_data)

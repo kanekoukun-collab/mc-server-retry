@@ -13,7 +13,21 @@ async function updateServerStatus() {
         const statusText = document.getElementById('status-text');
         const serverIcon = document.getElementById('server-icon');
 
-        if (data.online) {
+        // エラーメッセージの確認
+        if (data.error) {
+            // ===== サーバーが見つからない =====
+            statusBadge.textContent = '❌ 見つかりません';
+            statusBadge.className = 'badge offline';
+            statusText.textContent = data.error;
+
+            serverIcon.style.display = 'none';
+
+            document.getElementById('ping').textContent = 'N/A';
+            document.getElementById('version').textContent = 'N/A';
+            document.getElementById('players').textContent = '0 / 0';
+
+            document.getElementById('players-container').style.display = 'none';
+        } else if (data.online) {
             // ===== オンライン =====
             statusBadge.textContent = '🟢 Online';
             statusBadge.className = 'badge online';
@@ -105,8 +119,8 @@ function displayPlayers(playersList) {
 // 初回読み込み
 updateServerStatus();
 
-// 5秒ごとに更新
-setInterval(updateServerStatus, 5000);
+// 2秒ごとに常に更新
+setInterval(updateServerStatus, 2000);
 
 // ==================== 設定モーダル機能 ====================
 
