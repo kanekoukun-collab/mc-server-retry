@@ -6,10 +6,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-image: url('/static/grass-block.jpg');
-    background-size: 64px 64px;
-    background-repeat: repeat;
-    background-attachment: fixed;
+    background: #b0c4de;
     min-height: 100vh;
     padding: 20px;
 }
