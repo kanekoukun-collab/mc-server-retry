@@ -127,13 +127,13 @@ header h1 {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #d3d3d3;
+    background: transparent;
     border: 3px solid #999;
     border-radius: 15px;
     font-size: 120px;
     font-weight: bold;
     color: #666;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: none;
 }
 
 .status-text {
