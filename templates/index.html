@@ -10,7 +10,7 @@
     <div class="container">
         <header>
             <h1>🎮 サーバー状況</h1>
-            <p class="server-address">{{ server_address }}</p>
+            <p class="server-address" id="server-address-btn" title="クリックして設定を変更">{{ server_address }}</p>
         </header>
 
         <div id="loading" class="loading">
@@ -69,6 +69,25 @@
         <footer>
             <p>自動更新: 10秒ごと | データ提供: mcsrvstat.us</p>
         </footer>
+    </div>
+
+    <!-- 設定モーダル -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ サーバー設定</h2>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label for="server-address-input">サーバーアドレス:</label>
+                <input type="text" id="server-address-input" placeholder="例: gatisaba.xgames.jp">
+                <p class="hint">Minecraftサーバーのアドレスを入力してください</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="cancel-btn">キャンセル</button>
+                <button class="btn-save" id="save-btn">保存</button>
+            </div>
+        </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>

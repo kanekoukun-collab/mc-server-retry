@@ -1,7 +1,8 @@
 // サーバー状態を取得して表示
 async function updateServerStatus() {
     try {
-        const response = await fetch('/api/status');
+        const currentAddress = document.getElementById('server-address-btn').textContent;
+        const response = await fetch(`/api/status?server=${encodeURIComponent(currentAddress)}`);
         const data = await response.json();
 
         // ローディングを非表示、コンテンツを表示
@@ -106,3 +107,82 @@ updateServerStatus();
 
 // 5秒ごとに更新
 setInterval(updateServerStatus, 5000);
+
+// ==================== 設定モーダル機能 ====================
+
+// サーバーアドレスの取得・保存
+const STORAGE_KEY = 'minecraft_server_address';
+
+function loadServerAddress() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved || 'gatisaba.xgames.jp'; // デフォルト値
+}
+
+function saveServerAddress(address) {
+    localStorage.setItem(STORAGE_KEY, address);
+}
+
+// モーダルの要素を取得
+const modal = document.getElementById('settings-modal');
+const serverAddressBtn = document.getElementById('server-address-btn');
+const closeBtn = document.getElementById('close-modal');
+const cancelBtn = document.getElementById('cancel-btn');
+const saveBtn = document.getElementById('save-btn');
+const inputField = document.getElementById('server-address-input');
+
+// モーダルを開く
+serverAddressBtn.addEventListener('click', () => {
+    inputField.value = serverAddressBtn.textContent;
+    modal.classList.add('show');
+    inputField.focus();
+    inputField.select();
+});
+
+// モーダルを閉じる
+function closeModal() {
+    modal.classList.remove('show');
+}
+
+closeBtn.addEventListener('click', closeModal);
+cancelBtn.addEventListener('click', closeModal);
+
+// モーダルの外側をクリックして閉じる
+modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        closeModal();
+    }
+});
+
+// 保存ボタン
+saveBtn.addEventListener('click', () => {
+    const newAddress = inputField.value.trim();
+    
+    if (!newAddress) {
+        alert('サーバーアドレスを入力してください');
+        return;
+    }
+    
+    // サーバーアドレスを更新
+    saveServerAddress(newAddress);
+    serverAddressBtn.textContent = newAddress;
+    closeModal();
+    
+    // 設定を反映させるため、APIのベースパスを更新してステータスを再取得
+    updateServerStatus();
+    
+    console.log('✅ サーバーアドレスを更新:', newAddress);
+});
+
+// Enterキーで保存
+inputField.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        saveBtn.click();
+    }
+});
+
+// Escapeキーでモーダルを閉じる
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('show')) {
+        closeModal();
+    }
+});

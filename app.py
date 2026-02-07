@@ -25,13 +25,13 @@ SERVER_ADDRESS = "gatisaba.xgames.jp"
 SERVER_PORT = 25565
 API_URL = f"https://api.mcsrvstat.us/3/{SERVER_ADDRESS}"
 
-def get_minecraft_ping():
+def get_minecraft_ping(server_address=SERVER_ADDRESS):
     """Minecraftサーバーに直接接続してping値を取得"""
     try:
-        logger.info(f"📡 Minecraftサーバーのping値を計測中: {SERVER_ADDRESS}:{SERVER_PORT}")
+        logger.info(f"📡 Minecraftサーバーのping値を計測中: {server_address}:{SERVER_PORT}")
         
         # JavaServerに直接接続
-        server = JavaServer.lookup(f"{SERVER_ADDRESS}:{SERVER_PORT}")
+        server = JavaServer.lookup(f"{server_address}:{SERVER_PORT}")
         status = server.status()
         
         # ピング値をミリ秒の整数に丸める
@@ -47,20 +47,9 @@ def get_minecraft_ping():
         logger.error(f"❌ Minecraftサーバーのping計測エラー: {str(e)}")
         return None
 
-def get_server_status():
-    """サーバー状態を取得"""
-    try:
-        logger.info(f"📡 APIリクエスト: {API_URL}")
-        response = requests.get(API_URL, timeout=10)
-        response.raise_for_status()
-        data = response.json()
-        
-        logger.info(f"✓ APIレスポンス成功 | online={data.get('online')}")
-        
-        return data
-    except Exception as e:
-        logger.error(f"❌ APIエラー: {str(e)}")
-        return None
+def get_minecraft_ping_for_server(server_address):
+    """動的サーバーアドレス対応のping計測"""
+    return get_minecraft_ping(server_address)
 
 def download_image(url):
     """画像をダウンロードしてBase64に変換"""
@@ -120,11 +109,25 @@ def index():
 @app.route('/api/status')
 def api_status():
     """サーバー状態API"""
-    data = get_server_status()
+    # クエリパラメータからサーバーアドレスを取得（デフォルト: gatisaba.xgames.jp）
+    server_addr = request.args.get('server', SERVER_ADDRESS)
+    api_url = f"https://api.mcsrvstat.us/3/{server_addr}"
+    
+    logger.info(f"📡 APIリクエスト: {api_url}")
+    
+    try:
+        response = requests.get(api_url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        logger.info(f"✓ APIレスポンス成功 | online={data.get('online')}")
+    except Exception as e:
+        logger.error(f"❌ APIエラー: {str(e)}")
+        data = None
     
     response_data = {
         'online': False,
-        'server': SERVER_ADDRESS,
+        'server': server_addr,
         'port': SERVER_PORT,
         'timestamp': datetime.utcnow().isoformat(),
         'players': {
@@ -143,7 +146,7 @@ def api_status():
                 response_data[key] = data[key]
         
         # ★ Ping値を直接計測
-        ping_value = get_minecraft_ping()
+        ping_value = get_minecraft_ping_for_server(server_addr)
         if ping_value is not None:
             response_data['ping'] = ping_value
             logger.info(f"✅ Ping値をレスポンスに追加: {ping_value} ms")
