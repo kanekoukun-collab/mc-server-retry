@@ -183,6 +183,10 @@ saveBtn.addEventListener('click', async () => {
     
     console.log('✅ サーバーアドレスを更新:', newAddress);
     
+    // ローディング画面を表示
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('content').style.display = 'none';
+    
     // 即座に新しいサーバーの情報を取得・表示
     await updateServerStatus();
 });
