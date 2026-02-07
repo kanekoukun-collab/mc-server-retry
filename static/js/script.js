@@ -21,6 +21,7 @@ async function updateServerStatus() {
             statusText.textContent = data.error;
 
             serverIcon.style.display = 'none';
+            document.getElementById('error-icon').style.display = 'flex';
 
             document.getElementById('ping').textContent = 'N/A';
             document.getElementById('version').textContent = 'N/A';
@@ -40,6 +41,7 @@ async function updateServerStatus() {
             } else {
                 serverIcon.style.display = 'none';
             }
+            document.getElementById('error-icon').style.display = 'none';
 
             // Ping
             document.getElementById('ping').textContent =
@@ -67,7 +69,14 @@ async function updateServerStatus() {
             statusBadge.className = 'badge offline';
             statusText.textContent = 'サーバーはオフラインです';
 
-            serverIcon.style.display = 'none';
+            // サーバーアイコン
+            if (data.icon) {
+                serverIcon.src = data.icon;
+                serverIcon.style.display = 'block';
+            } else {
+                serverIcon.style.display = 'none';
+            }
+            document.getElementById('error-icon').style.display = 'none';
 
             document.getElementById('ping').textContent = 'N/A';
             document.getElementById('version').textContent = 'N/A';
