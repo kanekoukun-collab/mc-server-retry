@@ -148,57 +148,71 @@ def api_status():
         return jsonify(response_data)
     
     # サーバー情報が取得できたかチェック
-    if data and data.get('online'):
-        response_data['online'] = True
-        
-        # 基本情報をコピー
-        for key in ['version', 'protocol', 'hostname', 'software', 'motd']:
-            if key in data:
-                response_data[key] = data[key]
-        
-        # ★ Ping値を直接計測
-        ping_value = get_minecraft_ping_for_server(server_addr)
-        if ping_value is not None:
-            response_data['ping'] = ping_value
-            logger.info(f"✅ Ping値をレスポンスに追加: {ping_value} ms")
+    if data and 'online' in data:
+        # サーバーは存在する
+        if data.get('online'):
+            # オンライン
+            response_data['online'] = True
+            
+            # 基本情報をコピー
+            for key in ['version', 'protocol', 'hostname', 'software', 'motd']:
+                if key in data:
+                    response_data[key] = data[key]
+            
+            # ★ Ping値を直接計測
+            ping_value = get_minecraft_ping_for_server(server_addr)
+            if ping_value is not None:
+                response_data['ping'] = ping_value
+                logger.info(f"✅ Ping値をレスポンスに追加: {ping_value} ms")
+            else:
+                logger.warning(f"⚠️ Ping値の取得に失敗しました")
+            
+            # プレイヤー情報
+            players = data.get('players', {})
+            response_data['players']['online'] = players.get('online', 0)
+            response_data['players']['max'] = players.get('max', 0)
+            
+            # プレイヤーリスト処理
+            player_list = []
+            if players.get('online', 0) > 0 and 'list' in players:
+                for player_item in players['list']:
+                    if isinstance(player_item, dict):
+                        # オブジェクト形式: {"name": "...", "uuid": "..."}
+                        player_name = player_item.get('name', '')
+                        player_uuid = player_item.get('uuid', '')
+                    else:
+                        # 文字列形式（古いAPI）
+                        player_name = str(player_item)
+                        player_uuid = None
+                    
+                    if player_name:
+                        player_info = {
+                            'name': player_name,
+                            'uuid': player_uuid,
+                            'avatar': get_player_avatar(player_uuid)
+                        }
+                        player_list.append(player_info)
+                        logger.info(f"プレイヤー処理: {player_name}, UUID: {player_uuid}")
+            
+            response_data['players']['list'] = player_list
+            
+            # アイコン
+            if 'icon' in data:
+                response_data['icon'] = data['icon']
         else:
-            logger.warning(f"⚠️ Ping値の取得に失敗しました")
-        
-        # プレイヤー情報
-        players = data.get('players', {})
-        response_data['players']['online'] = players.get('online', 0)
-        response_data['players']['max'] = players.get('max', 0)
-        
-        # プレイヤーリスト処理
-        player_list = []
-        if players.get('online', 0) > 0 and 'list' in players:
-            for player_item in players['list']:
-                if isinstance(player_item, dict):
-                    # オブジェクト形式: {"name": "...", "uuid": "..."}
-                    player_name = player_item.get('name', '')
-                    player_uuid = player_item.get('uuid', '')
-                else:
-                    # 文字列形式（古いAPI）
-                    player_name = str(player_item)
-                    player_uuid = None
-                
-                if player_name:
-                    player_info = {
-                        'name': player_name,
-                        'uuid': player_uuid,
-                        'avatar': get_player_avatar(player_uuid)
-                    }
-                    player_list.append(player_info)
-                    logger.info(f"プレイヤー処理: {player_name}, UUID: {player_uuid}")
-        
-        response_data['players']['list'] = player_list
-        
-        # アイコン
-        if 'icon' in data:
-            response_data['icon'] = data['icon']
+            # オフライン（サーバーは存在するがオフライン状態）
+            response_data['online'] = False
+            response_data['error'] = None  # エラーではない
+            
+            # アイコン
+            if 'icon' in data:
+                response_data['icon'] = data['icon']
+            
+            logger.info(f"⚠️ サーバーはオフライン: {server_addr}")
     else:
-        # サーバーがオフラインの場合
+        # サーバーが見つからない
         response_data['error'] = f"サーバーが見つかりませんでした ({server_addr})"
+        logger.error(f"❌ サーバーが見つかりません: {server_addr}")
     
     logger.info(f"📤 APIステータスレスポンス: {response_data}")
     return jsonify(response_data)

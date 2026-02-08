@@ -64,7 +64,7 @@ async function updateServerStatus() {
             }
 
         } else {
-            // ===== オフライン =====
+            // ===== オフライン（サーバーは存在）=====
             statusBadge.textContent = '🔴 Offline';
             statusBadge.className = 'badge offline';
             statusText.textContent = 'サーバーはオフラインです';
