@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, session, redirect, url_for
 import requests
 import json
 from datetime import datetime
@@ -8,8 +8,21 @@ import uuid
 import logging
 import sys
 from mcstatus import JavaServer
+from functools import wraps
 
 app = Flask(__name__)
+
+# シークレットキー設定
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+
+# セッション設定
+app.config['SESSION_COOKIE_SECURE'] = os.environ.get('FLASK_ENV') == 'production'  # 本番環境ではTrue
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # 1時間
+
+# 管理者パスワード
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
 
 # ログ設定（Render対応）
 logging.basicConfig(
@@ -290,6 +303,49 @@ def test_player(username):
             'username': username,
             'error': str(e)
         }), 500
+
+# ==================== 管理者ページ ====================
+
+def admin_required(f):
+    """管理者認証チェックデコレーター"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get('admin_authenticated'):
+            return f(*args, **kwargs)
+        return redirect(url_for('admin_login'))
+    return decorated_function
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    """管理者ログイン"""
+    if request.method == 'POST':
+        password = request.form.get('password', '')
+        if password == ADMIN_PASSWORD:
+            session['admin_authenticated'] = True
+            logger.info("✅ 管理者がログインしました")
+            return redirect(url_for('admin_panel'))
+        else:
+            logger.warning("❌ 管理者ログイン失敗: パスワード不一致")
+            return render_template('admin_login.html', error='パスワードが違います')
+    return render_template('admin_login.html')
+
+@app.route('/admin', methods=['GET', 'POST'])
+@admin_required
+def admin_panel():
+    """管理者パネル"""
+    message = ''
+    if request.method == 'POST':
+        message = request.form.get('message', '')
+        logger.info(f"📝 管理者がメッセージを送信: {len(message)} 文字")
+    
+    return render_template('admin_panel.html', message=message)
+
+@app.route('/admin/logout')
+def admin_logout():
+    """ログアウト"""
+    session.clear()
+    logger.info("👋 管理者がログアウトしました")
+    return redirect(url_for('admin_login'))
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
