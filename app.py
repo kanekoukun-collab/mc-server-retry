@@ -61,6 +61,17 @@ SERVER_ADDRESS = "gatisaba.xgames.jp"
 SERVER_PORT = 25565
 API_URL = f"https://api.mcsrvstat.us/3/{SERVER_ADDRESS}"
 
+def get_server_status(server_address=SERVER_ADDRESS):
+    """mcsrvstat.us からサーバーステータスを取得（デバッグ用）"""
+    api_url = f"https://api.mcsrvstat.us/3/{server_address}"
+    try:
+        response = requests.get(api_url, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        logger.error(f"❌ get_server_status エラー: {str(e)}")
+        return None
+
 def get_minecraft_ping(server_address=SERVER_ADDRESS):
     """Minecraftサーバーに直接接続してping値を取得"""
     try:
@@ -361,11 +372,25 @@ def admin_panel():
     message = load_admin_message()  # 前回保存したメッセージを読み込み
     
     if request.method == 'POST':
-        message = request.form.get('message', '')
-        save_admin_message(message)  # メッセージを保存
-        logger.info(f"📝 管理者がメッセージを送信: {len(message)} 文字")
+        action = request.form.get('action', 'save')
+        if action == 'delete':
+            message = ''
+            save_admin_message(message)
+            logger.info("🗑️ 管理者がメッセージを削除しました")
+        else:
+            message = request.form.get('message', '')
+            save_admin_message(message)  # メッセージを保存
+            logger.info(f"📝 管理者がメッセージを送信: {len(message)} 文字")
     
     return render_template('admin_panel.html', message=message)
+
+@app.route('/admin/logout')
+@admin_required
+def admin_logout():
+    """管理者ログアウト"""
+    session.pop('admin_authenticated', None)
+    logger.info("👋 管理者がログアウトしました")
+    return redirect(url_for('admin_login'))
 
 @app.route('/api/admin-message')
 def api_admin_message():
