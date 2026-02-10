@@ -5,9 +5,12 @@ async function updateServerStatus() {
         const response = await fetch(`/api/status?server=${encodeURIComponent(currentAddress)}`);
         const data = await response.json();
 
-        // ローディングを非表示、コンテンツを表示
+        // ロード中表示を処理
         document.getElementById('loading').style.display = 'none';
         document.getElementById('content').style.display = 'block';
+
+        // 管理者メッセージを更新
+        await updateAdminMessage();
 
         const statusBadge = document.getElementById('status-badge');
         const statusText = document.getElementById('status-text');
@@ -123,6 +126,54 @@ function displayPlayers(playersList) {
     });
 
     container.style.display = 'block';
+}
+
+// 管理者メッセージを更新
+async function updateAdminMessage() {
+    try {
+        const response = await fetch('/api/admin-message');
+        const data = await response.json();
+        
+        const messageSection = document.getElementById('admin-message-section');
+        
+        if (data.message && data.message.trim()) {
+            // メッセージが存在する場合
+            if (!messageSection) {
+                // セクションが存在しないなら作成
+                const contentDiv = document.getElementById('content');
+                const newSection = document.createElement('div');
+                newSection.id = 'admin-message-section';
+                newSection.className = 'admin-message-section';
+                newSection.innerHTML = `
+                    <div class="section-title">📢 お知らせ</div>
+                    <div class="admin-message-box">
+                        <p>${escapeHtml(data.message)}</p>
+                    </div>
+                `;
+                contentDiv.appendChild(newSection);
+            } else {
+                // セクションが存在するなら内容を更新
+                const messageBox = messageSection.querySelector('.admin-message-box p');
+                if (messageBox) {
+                    messageBox.textContent = data.message;
+                }
+            }
+        } else {
+            // メッセージが空の場合、セクションを削除
+            if (messageSection) {
+                messageSection.remove();
+            }
+        }
+    } catch (error) {
+        console.error('Error updating admin message:', error);
+    }
+}
+
+// HTML特殊文字をエスケープ
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // 初回読み込み

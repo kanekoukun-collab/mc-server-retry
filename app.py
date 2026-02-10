@@ -367,12 +367,11 @@ def admin_panel():
     
     return render_template('admin_panel.html', message=message)
 
-@app.route('/admin/logout')
-def admin_logout():
-    """ログアウト"""
-    session.clear()
-    logger.info("👋 管理者がログアウトしました")
-    return redirect(url_for('admin_login'))
+@app.route('/api/admin-message')
+def api_admin_message():
+    """管理者メッセージを返すAPI"""
+    message = load_admin_message()
+    return jsonify({'message': message})
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))

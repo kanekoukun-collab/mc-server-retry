@@ -128,6 +128,38 @@
             transform: translateY(0);
         }
 
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button-group .submit-btn {
+            flex: 1;
+        }
+
+        .delete-btn {
+            flex: 1;
+            padding: 12px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .delete-btn:active {
+            transform: translateY(0);
+        }
+
         .message-display {
             margin-top: 30px;
             padding: 20px;
@@ -173,6 +205,25 @@
             font-size: 0.85rem;
             color: #888;
             text-align: right;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .delete-btn {
+            padding: 6px 12px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+            transform: scale(1.05);
         }
     </style>
 </head>
@@ -190,20 +241,26 @@
                     <textarea 
                         id="message" 
                         name="message" 
-                        placeholder="ここにメッセージを入力してください..."></textarea>
+                        placeholder="ここにメッセージを入力してください...">{{ message }}</textarea>
                     <div class="char-count">
                         <span id="char-count">0</span> 文字
                     </div>
                 </div>
-                <button type="submit" class="submit-btn">送信</button>
+                <div class="button-group">
+                    <button type="submit" name="action" value="save" class="submit-btn">送信</button>
+                    {% if message %}
+                    <button type="submit" name="action" value="delete" class="delete-btn">削除</button>
+                    {% endif %}
+                </div>
             </form>
 
             {% if message %}
             <div class="message-display">
                 <h3>📝 入力内容:</h3>
-                <p>{{ message }}</p>
+                <p id="message-content" style="cursor: pointer;">{{ message }}</p>
                 <div class="char-count">
                     合計: <strong>{{ message|length }}</strong> 文字
+                    <button type="button" class="delete-btn" id="delete-btn">削除</button>
                 </div>
             </div>
             {% endif %}
@@ -214,6 +271,7 @@
         // 文字数カウント
         const textarea = document.getElementById('message');
         const charCount = document.getElementById('char-count');
+        const deleteBtn = document.getElementById('delete-btn');
 
         textarea.addEventListener('input', () => {
             charCount.textContent = textarea.value.length;
@@ -221,6 +279,22 @@
 
         // ページロード時に文字数を表示
         charCount.textContent = textarea.value.length;
+
+        // 削除ボタンの機能
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', () => {
+                if (confirm('このメッセージを削除してもよろしいですか？')) {
+                    // テキストエリアをクリア
+                    textarea.value = '';
+                    
+                    // 文字数を更新
+                    charCount.textContent = '0';
+                    
+                    // フォームを送信（メッセージを削除）
+                    document.querySelector('form').submit();
+                }
+            });
+        }
     </script>
 </body>
 </html>
