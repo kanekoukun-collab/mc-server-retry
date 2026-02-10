@@ -229,6 +229,35 @@ footer {
     opacity: 0.8;
 }
 
+/* 管理者メッセージセクション */
+.admin-message-section {
+    margin-bottom: 20px;
+    animation: fadeIn 0.8s ease-in;
+}
+
+.admin-message-box {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #667eea;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.admin-message-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.admin-message-box p {
+    margin: 0;
+    color: #333;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
 /* モーダルスタイル */
 .modal {
     display: none;

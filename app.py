@@ -24,6 +24,29 @@ app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # 1時間
 # 管理者パスワード
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
 
+# メッセージ保存用ファイルパス
+MESSAGE_FILE = os.path.join(os.path.dirname(__file__), 'admin_message.json')
+
+def save_admin_message(message):
+    """管理者メッセージを保存"""
+    try:
+        with open(MESSAGE_FILE, 'w', encoding='utf-8') as f:
+            json.dump({'message': message}, f, ensure_ascii=False)
+        logger.info(f"✅ メッセージを保存: {len(message)} 文字")
+    except Exception as e:
+        logger.error(f"❌ メッセージ保存エラー: {str(e)}")
+
+def load_admin_message():
+    """管理者メッセージを読み込み"""
+    try:
+        if os.path.exists(MESSAGE_FILE):
+            with open(MESSAGE_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return data.get('message', '')
+    except Exception as e:
+        logger.error(f"❌ メッセージ読み込みエラー: {str(e)}")
+    return ''
+
 # ログ設定（Render対応）
 logging.basicConfig(
     level=logging.INFO,
@@ -115,9 +138,11 @@ def get_default_avatar():
 @app.route('/')
 def index():
     """メインページ"""
+    admin_message = load_admin_message()  # 管理者メッセージを読み込み
     return render_template('index.html', 
                          server_address=SERVER_ADDRESS,
-                         server_port=SERVER_PORT)
+                         server_port=SERVER_PORT,
+                         admin_message=admin_message)
 
 @app.route('/api/status')
 def api_status():
@@ -333,9 +358,11 @@ def admin_login():
 @admin_required
 def admin_panel():
     """管理者パネル"""
-    message = ''
+    message = load_admin_message()  # 前回保存したメッセージを読み込み
+    
     if request.method == 'POST':
         message = request.form.get('message', '')
+        save_admin_message(message)  # メッセージを保存
         logger.info(f"📝 管理者がメッセージを送信: {len(message)} 文字")
     
     return render_template('admin_panel.html', message=message)
